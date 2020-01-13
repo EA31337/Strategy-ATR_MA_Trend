@@ -16,7 +16,6 @@
 // User input params.
 INPUT string __ATR_Parameters__ = "-- ATR strategy params --";  // >>> ATR <<<
 INPUT int ATR_Period = 14;                                      // Period
-INPUT double ATR_SignalOpenLevel = 0.00000000;                  // Signal open level
 INPUT int ATR_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
 INPUT int ATR_SignalOpenMethod = 0;                             // Signal open method (0-31)
 INPUT double ATR_SignalOpenLevel = 0;                           // Signal open level
