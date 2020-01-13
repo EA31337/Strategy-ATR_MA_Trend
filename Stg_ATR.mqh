@@ -15,51 +15,40 @@
 
 // User input params.
 INPUT string __ATR_Parameters__ = "-- ATR strategy params --";  // >>> ATR <<<
-INPUT int ATR_Active_Tf = 0;  // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
-INPUT ENUM_TRAIL_TYPE ATR_TrailingStopMethod = 7;     // Trail stop method
-INPUT ENUM_TRAIL_TYPE ATR_TrailingProfitMethod = 22;  // Trail profit method
-INPUT int ATR_Period = 14;                            // Period
-INPUT double ATR_SignalOpenLevel = 0.00000000;        // Signal open level
-INPUT int ATR_Shift = 0;                              // Shift (relative to the current bar, 0 - default)
-INPUT double ATR_SignalOpenLevel = 0;                 // Signal open level
-INPUT int ATR_SignalBaseMethod = 0;                   // Signal base method (0-31)
-INPUT int ATR_SignalOpenMethod1 = 0;                  // Open condition 1 (0-1023)
-INPUT int ATR_SignalOpenMethod2 = 0;                  // Open condition 2 (0-)
-INPUT double ATR_SignalCloseLevel = 0;                // Signal close level
-INPUT ENUM_MARKET_EVENT ATR_SignalCloseMethod1 = 0;   // Signal close level 1
-INPUT ENUM_MARKET_EVENT ATR_SignalCloseMethod2 = 0;   // Signal close level 2
-INPUT ENUM_MARKET_EVENT ATR_CloseCondition = 1;       // Close condition
-INPUT double ATR_MaxSpread = 6.0;                     // Max spread to trade (pips)
+INPUT int ATR_Period = 14;                                      // Period
+INPUT double ATR_SignalOpenLevel = 0.00000000;                  // Signal open level
+INPUT int ATR_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
+INPUT int ATR_SignalOpenMethod = 0;                             // Signal open method (0-31)
+INPUT double ATR_SignalOpenLevel = 0;                           // Signal open level
+INPUT int ATR_SignalCloseMethod = 0;                            // Signal close method
+INPUT double ATR_SignalCloseLevel = 0;                          // Signal close level
+INPUT int ATR_PriceLimitMethod = 0;                             // Price limit method
+INPUT double ATR_PriceLimitLevel = 0;                           // Price limit level
+INPUT double ATR_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
 struct Stg_ATR_Params : Stg_Params {
   unsigned int ATR_Period;
   ENUM_APPLIED_PRICE ATR_Applied_Price;
   int ATR_Shift;
-  ENUM_TRAIL_TYPE ATR_TrailingStopMethod;
-  ENUM_TRAIL_TYPE ATR_TrailingProfitMethod;
+  int ATR_SignalOpenMethod;
   double ATR_SignalOpenLevel;
-  long ATR_SignalBaseMethod;
-  long ATR_SignalOpenMethod1;
-  long ATR_SignalOpenMethod2;
+  int ATR_SignalCloseMethod;
   double ATR_SignalCloseLevel;
-  ENUM_MARKET_EVENT ATR_SignalCloseMethod1;
-  ENUM_MARKET_EVENT ATR_SignalCloseMethod2;
+  int ATR_PriceLimitMethod;
+  double ATR_PriceLimitLevel;
   double ATR_MaxSpread;
 
   // Constructor: Set default param values.
   Stg_ATR_Params()
       : ATR_Period(::ATR_Period),
         ATR_Shift(::ATR_Shift),
-        ATR_TrailingStopMethod(::ATR_TrailingStopMethod),
-        ATR_TrailingProfitMethod(::ATR_TrailingProfitMethod),
+        ATR_SignalOpenMethod(::ATR_SignalOpenMethod),
         ATR_SignalOpenLevel(::ATR_SignalOpenLevel),
-        ATR_SignalBaseMethod(::ATR_SignalBaseMethod),
-        ATR_SignalOpenMethod1(::ATR_SignalOpenMethod1),
-        ATR_SignalOpenMethod2(::ATR_SignalOpenMethod2),
+        ATR_SignalCloseMethod(::ATR_SignalCloseMethod),
         ATR_SignalCloseLevel(::ATR_SignalCloseLevel),
-        ATR_SignalCloseMethod1(::ATR_SignalCloseMethod1),
-        ATR_SignalCloseMethod2(::ATR_SignalCloseMethod2),
+        ATR_PriceLimitMethod(::ATR_PriceLimitMethod),
+        ATR_PriceLimitLevel(::ATR_PriceLimitLevel),
         ATR_MaxSpread(::ATR_MaxSpread) {}
 };
 
@@ -111,10 +100,8 @@ class Stg_ATR : public Strategy {
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_ATR(atr_params, atr_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.ATR_SignalBaseMethod, _params.ATR_SignalOpenMethod1, _params.ATR_SignalOpenMethod2,
-                       _params.ATR_SignalCloseMethod1, _params.ATR_SignalCloseMethod2, _params.ATR_SignalOpenLevel,
+    sparams.SetSignals(_params.ATR_SignalOpenMethod, _params.ATR_SignalOpenLevel, _params.ATR_SignalCloseMethod,
                        _params.ATR_SignalCloseLevel);
-    sparams.SetStops(_params.ATR_TrailingProfitMethod, _params.ATR_TrailingStopMethod);
     sparams.SetMaxSpread(_params.ATR_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_ATR(sparams, "ATR");
@@ -124,13 +111,11 @@ class Stg_ATR : public Strategy {
   /**
    * Check strategy's opening signal.
    */
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
     double atr_0 = ((Indi_ATR *)this.Data()).GetValue(0);
     double atr_1 = ((Indi_ATR *)this.Data()).GetValue(1);
     double atr_2 = ((Indi_ATR *)this.Data()).GetValue(2);
-    if (_signal_method == EMPTY) _signal_method = GetSignalBaseMethod();
-    if (_signal_level == EMPTY) _signal_level = GetSignalOpenLevel();
     switch (_cmd) {
       //   if(iATR(NULL,0,12,0)>iATR(NULL,0,20,0)) return(0);
       /*
@@ -145,13 +130,13 @@ class Stg_ATR : public Strategy {
       case ORDER_TYPE_BUY:
         // bool _result = atr_0;
         /*
-          if (METHOD(_signal_method, 0)) _result &= Open[CURR] > Close[CURR];
+          if (METHOD(_method, 0)) _result &= Open[CURR] > Close[CURR];
           */
         break;
       case ORDER_TYPE_SELL:
         /*
           bool _result = ATR_0[LINE_UPPER] != 0.0 || ATR_1[LINE_UPPER] != 0.0 || ATR_2[LINE_UPPER] != 0.0;
-          if (METHOD(_signal_method, 0)) _result &= Open[CURR] < Close[CURR];
+          if (METHOD(_method, 0)) _result &= Open[CURR] < Close[CURR];
         */
         break;
     }
@@ -161,8 +146,23 @@ class Stg_ATR : public Strategy {
   /**
    * Check strategy's closing signal.
    */
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
-    if (_signal_level == EMPTY) _signal_level = GetSignalCloseLevel();
-    return SignalOpen(Order::NegateOrderType(_cmd), _signal_method, _signal_level);
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  }
+
+  /**
+   * Gets price limit value for profit take or stop loss.
+   */
+  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+    double _trail = _level * Market().GetPipSize();
+    int _direction = Order::OrderDirection(_cmd) * (_mode == LIMIT_VALUE_STOP ? -1 : 1);
+    double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
+    double _result = _default_value;
+    switch (_method) {
+      case 0: {
+        // @todo
+      }
+    }
+    return _result;
   }
 };
