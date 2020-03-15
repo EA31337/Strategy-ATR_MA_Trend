@@ -94,32 +94,19 @@ class Stg_ATR : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    bool _result = false;
-    double atr_0 = ((Indi_ATR *)this.Data()).GetValue(0);
-    double atr_1 = ((Indi_ATR *)this.Data()).GetValue(1);
-    double atr_2 = ((Indi_ATR *)this.Data()).GetValue(2);
+    Indicator *_indi = Data();
+    bool _is_valid = _indi[CURR].IsValid();
+    bool _result = _is_valid;
     switch (_cmd) {
-      //   if(iATR(NULL,0,12,0)>iATR(NULL,0,20,0)) return(0);
-      /*
-        //6. Average True Range - ATR
-        //Doesn't give independent signals. Is used to define volatility (trend strength).
-        //principle: trend must be strengthened. Together with that ATR grows.
-        //Because of the chart form it is inconvenient to analyze rise/fall. Only exceeding of threshold value is
-        checked.
-        //Flag is 1 when ATR is above threshold value (i.e. there is a trend), 0 - when ATR is below threshold value, -1
-        - never. if (iATR(NULL,piatr,piatru,0)>=minatr) {f6=1;}
-      */
+      // Note: ATR doesn't give independent signals. Is used to define volatility (trend strength).
+      // Principle: trend must be strengthened. Together with that ATR grows.
       case ORDER_TYPE_BUY:
-        // bool _result = atr_0;
-        /*
-          if (METHOD(_method, 0)) _result &= Open[CURR] > Close[CURR];
-          */
+        _result &= _indi[CURR].value[0] + _level >= _indi[PREV].value[0];
+        if (METHOD(_method, 0)) _result &= _indi[PPREV].value[0] + _level >= _indi[PREV].value[0];
         break;
       case ORDER_TYPE_SELL:
-        /*
-          bool _result = ATR_0[LINE_UPPER] != 0.0 || ATR_1[LINE_UPPER] != 0.0 || ATR_2[LINE_UPPER] != 0.0;
-          if (METHOD(_method, 0)) _result &= Open[CURR] < Close[CURR];
-        */
+        _result &= _indi[CURR].value[0] + _level <= _indi[PREV].value[0];
+        if (METHOD(_method, 0)) _result &= _indi[PPREV].value[0] + _level <= _indi[PREV].value[0];
         break;
     }
     return _result;
@@ -169,7 +156,7 @@ class Stg_ATR : public Strategy {
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
     double _trail = _level * Market().GetPipSize();
-    int _direction = Order::OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
+    int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
     switch (_method) {
