@@ -24,7 +24,7 @@ INPUT int ATR_SignalOpenBoostMethod = 0;                        // Signal open b
 INPUT int ATR_SignalCloseMethod = 0;                            // Signal close method
 INPUT double ATR_SignalCloseLevel = 0;                          // Signal close level
 INPUT int ATR_PriceLimitMethod = 0;                             // Price limit method
-INPUT double ATR_PriceLimitLevel = 0;                           // Price limit level
+INPUT double ATR_PriceLimitLevel = 2;                           // Price limit level
 INPUT double ATR_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
@@ -84,6 +84,7 @@ class Stg_ATR : public Strategy {
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.ATR_SignalOpenMethod, _params.ATR_SignalOpenLevel, _params.ATR_SignalOpenFilterMethod,
                        _params.ATR_SignalOpenBoostMethod, _params.ATR_SignalCloseMethod, _params.ATR_SignalCloseLevel);
+    sparams.SetPriceLimits(_params.ATR_PriceLimitMethod, _params.ATR_PriceLimitLevel);
     sparams.SetMaxSpread(_params.ATR_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_ATR(sparams, "ATR");
@@ -94,7 +95,7 @@ class Stg_ATR : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    Indicator *_indi = Data();
+    Indi_ATR *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid();
     bool _result = _is_valid;
     switch (_cmd) {
@@ -155,13 +156,16 @@ class Stg_ATR : public Strategy {
    * Gets price limit value for profit take or stop loss.
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+    Indi_ATR *_indi = Data();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
     switch (_method) {
       case 0: {
-        // @todo
+        int _bar_count = (int) _level * (int) _indi.GetPeriod();
+        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count)) : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+        break;
       }
     }
     return _result;

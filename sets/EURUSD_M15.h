@@ -15,7 +15,7 @@ struct Stg_ATR_EURUSD_M15_Params : Stg_ATR_Params {
     ATR_SignalCloseMethod = 0;
     ATR_SignalCloseLevel = 0;
     ATR_PriceLimitMethod = 0;
-    ATR_PriceLimitLevel = 0;
+    ATR_PriceLimitLevel = 2;
     ATR_MaxSpread = 0;
   }
 } stg_atr_m15;
