@@ -11,6 +11,7 @@
 
 // Includes.
 #include <EA31337-classes/EA.mqh>
+#include "Indi_ATR_MA_Trend.mqh"
 
 // Inputs.
 input int Active_Tfs = 127;               // Activated timeframes (1-255) [M1=1,M5=2,M15=4,M30=8,H1=16,H2=32,H4=64...]

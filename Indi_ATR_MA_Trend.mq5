@@ -162,10 +162,10 @@ int OnCalculate(const int rates_total,
 
    for(bar=limit; bar>=0; bar--)
      {
-      ExtMapBufferUp[bar]=EMPTY_VALUE;
-      ExtMapBufferDown[bar]=EMPTY_VALUE;
-      ExtMapBufferUp1[bar]=EMPTY_VALUE;
-      ExtMapBufferDown1[bar]=EMPTY_VALUE;
+      ExtMapBufferUp[bar]=NULL;
+      ExtMapBufferDown[bar]=NULL;
+      ExtMapBufferUp1[bar]=NULL;
+      ExtMapBufferDown1[bar]=NULL;
 
       atr=ATR[bar]*ATRSensitivity;
       highMoving0= HMA[bar] *(1+shiftPercent/100)+atr;
@@ -193,8 +193,8 @@ int OnCalculate(const int rates_total,
          ExtMapBufferDown[bar]=highMoving0;
         }
 
-      if(ExtMapBufferUp[bar+1]==EMPTY_VALUE && ExtMapBufferUp[bar]!=EMPTY_VALUE) ExtMapBufferUp1[bar]=ExtMapBufferUp[bar];
-      if(ExtMapBufferDown[bar+1]==EMPTY_VALUE && ExtMapBufferDown[bar]!=EMPTY_VALUE) ExtMapBufferDown1[bar]=ExtMapBufferDown[bar];
+      if(ExtMapBufferUp[bar+1]==NULL && ExtMapBufferUp[bar]!=NULL) ExtMapBufferUp1[bar]=ExtMapBufferUp[bar];
+      if(ExtMapBufferDown[bar+1]==NULL && ExtMapBufferDown[bar]!=NULL) ExtMapBufferDown1[bar]=ExtMapBufferDown[bar];
 
       if(bar>0)
         {

@@ -10,51 +10,60 @@
  */
 
 // Includes.
-#include <EA31337-classes/Indicators/Indi_ATR.mqh>
 #include <EA31337-classes/Strategy.mqh>
 
-// User input params.
-INPUT string __ATR_Parameters__ = "-- ATR MA Trend strategy params --";  // >>> ATR <<<
-INPUT int ATR_Period = 14;                                      // Period
-INPUT int ATR_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
-INPUT int ATR_SignalOpenMethod = 0;                             // Signal open method (0-31)
-INPUT double ATR_SignalOpenLevel = 0;                           // Signal open level
-INPUT int ATR_SignalOpenFilterMethod = 0;                       // Signal open filter method
-INPUT int ATR_SignalOpenBoostMethod = 0;                        // Signal open boost method
-INPUT int ATR_SignalCloseMethod = 0;                            // Signal close method
-INPUT double ATR_SignalCloseLevel = 0;                          // Signal close level
-INPUT int ATR_PriceLimitMethod = 0;                             // Price limit method
-INPUT double ATR_PriceLimitLevel = 2;                           // Price limit level
-INPUT double ATR_MaxSpread = 6.0;                               // Max spread to trade (pips)
+INPUT string __ATR_MA_Trend_Parameters__ = "-- ATR MA Trend strategy params --";  // >>> ATR <<<
+INPUT int ATR_MA_Trend_Period = 13;                                      // Main Period
+INPUT double ATR_MA_Trend_Shift_Pc = 0;                                  // Indicator Shift Percentage
+INPUT int ATR_MA_Trend_ATR_Period = 15;                                  // ATR Period
+INPUT double ATR_MA_Trend_ATR_Sensitivity = 1.5;                         // ATR Sensitivity
+INPUT int ATR_MA_Trend_Indi_Shift = 0;                                   // Indicator Shift
+INPUT int ATR_MA_Trend_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
+INPUT int ATR_MA_Trend_SignalOpenMethod = 0;                             // Signal open method (0-31)
+INPUT double ATR_MA_Trend_SignalOpenLevel = 0;                           // Signal open level
+INPUT int ATR_MA_Trend_SignalOpenFilterMethod = 0;                       // Signal open filter method
+INPUT int ATR_MA_Trend_SignalOpenBoostMethod = 0;                        // Signal open boost method
+INPUT int ATR_MA_Trend_SignalCloseMethod = 0;                            // Signal close method
+INPUT double ATR_MA_Trend_SignalCloseLevel = 0;                          // Signal close level
+INPUT int ATR_MA_Trend_PriceLimitMethod = 0;                             // Price limit method
+INPUT double ATR_MA_Trend_PriceLimitLevel = 2;                           // Price limit level
+INPUT double ATR_MA_Trend_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
 struct Stg_ATR_MA_Trend_Params : StgParams {
-  unsigned int ATR_Period;
-  ENUM_APPLIED_PRICE ATR_Applied_Price;
-  int ATR_Shift;
-  int ATR_SignalOpenMethod;
-  double ATR_SignalOpenLevel;
-  int ATR_SignalOpenFilterMethod;
-  int ATR_SignalOpenBoostMethod;
-  int ATR_SignalCloseMethod;
-  double ATR_SignalCloseLevel;
-  int ATR_PriceLimitMethod;
-  double ATR_PriceLimitLevel;
-  double ATR_MaxSpread;
+  int ATR_MA_Trend_Period;
+  double ATR_MA_Trend_Shift_Pc;
+  int ATR_MA_Trend_ATR_Period;
+  double ATR_MA_Trend_ATR_Sensitivity;
+  int ATR_MA_Trend_Indi_Shift;
+  int ATR_MA_Trend_Shift;
+  int ATR_MA_Trend_SignalOpenMethod;
+  double ATR_MA_Trend_SignalOpenLevel;
+  int ATR_MA_Trend_SignalOpenFilterMethod;
+  int ATR_MA_Trend_SignalOpenBoostMethod;
+  int ATR_MA_Trend_SignalCloseMethod;
+  double ATR_MA_Trend_SignalCloseLevel;
+  int ATR_MA_Trend_PriceLimitMethod;
+  double ATR_MA_Trend_PriceLimitLevel;
+  double ATR_MA_Trend_MaxSpread;
 
   // Constructor: Set default param values.
   Stg_ATR_MA_Trend_Params()
-      : ATR_Period(::ATR_Period),
-        ATR_Shift(::ATR_Shift),
-        ATR_SignalOpenMethod(::ATR_SignalOpenMethod),
-        ATR_SignalOpenLevel(::ATR_SignalOpenLevel),
-        ATR_SignalOpenFilterMethod(::ATR_SignalOpenFilterMethod),
-        ATR_SignalOpenBoostMethod(::ATR_SignalOpenBoostMethod),
-        ATR_SignalCloseMethod(::ATR_SignalCloseMethod),
-        ATR_SignalCloseLevel(::ATR_SignalCloseLevel),
-        ATR_PriceLimitMethod(::ATR_PriceLimitMethod),
-        ATR_PriceLimitLevel(::ATR_PriceLimitLevel),
-        ATR_MaxSpread(::ATR_MaxSpread) {}
+      : ATR_MA_Trend_Period(::ATR_MA_Trend_Period),
+        ATR_MA_Trend_Shift_Pc(::ATR_MA_Trend_Shift_Pc),
+        ATR_MA_Trend_ATR_Period(::ATR_MA_Trend_ATR_Period),
+        ATR_MA_Trend_ATR_Sensitivity(::ATR_MA_Trend_ATR_Sensitivity),
+        ATR_MA_Trend_Indi_Shift(::ATR_MA_Trend_Indi_Shift),
+        ATR_MA_Trend_Shift(::ATR_MA_Trend_Shift),
+        ATR_MA_Trend_SignalOpenMethod(::ATR_MA_Trend_SignalOpenMethod),
+        ATR_MA_Trend_SignalOpenLevel(::ATR_MA_Trend_SignalOpenLevel),
+        ATR_MA_Trend_SignalOpenFilterMethod(::ATR_MA_Trend_SignalOpenFilterMethod),
+        ATR_MA_Trend_SignalOpenBoostMethod(::ATR_MA_Trend_SignalOpenBoostMethod),
+        ATR_MA_Trend_SignalCloseMethod(::ATR_MA_Trend_SignalCloseMethod),
+        ATR_MA_Trend_SignalCloseLevel(::ATR_MA_Trend_SignalCloseLevel),
+        ATR_MA_Trend_PriceLimitMethod(::ATR_MA_Trend_PriceLimitMethod),
+        ATR_MA_Trend_PriceLimitLevel(::ATR_MA_Trend_PriceLimitLevel),
+        ATR_MA_Trend_MaxSpread(::ATR_MA_Trend_MaxSpread) {}
 };
 
 // Loads pair specific param values.
@@ -77,17 +86,21 @@ class Stg_ATR_MA_Trend : public Strategy {
                                     stg_atr_ma_trend_h4, stg_atr_ma_trend_h4);
     }
     // Initialize strategy parameters.
-    ATRParams atr_params(_params.ATR_Period);
-    atr_params.SetTf(_tf);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_ATR(atr_params), NULL, NULL);
+    ATR_MA_Trend_Params atr_ma_params(
+      _params.ATR_MA_Trend_Period, _params.ATR_MA_Trend_Shift_Pc, _params.ATR_MA_Trend_ATR_Period,
+      _params.ATR_MA_Trend_ATR_Sensitivity,
+      _params.ATR_MA_Trend_Indi_Shift, _params.ATR_MA_Trend_Shift
+      );
+    atr_ma_params.SetTf(_tf);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_ATR_MA_Trend(atr_ma_params), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.ATR_SignalOpenMethod, _params.ATR_SignalOpenLevel, _params.ATR_SignalOpenFilterMethod,
-                       _params.ATR_SignalOpenBoostMethod, _params.ATR_SignalCloseMethod, _params.ATR_SignalCloseLevel);
-    sparams.SetPriceLimits(_params.ATR_PriceLimitMethod, _params.ATR_PriceLimitLevel);
-    sparams.SetMaxSpread(_params.ATR_MaxSpread);
+    sparams.SetSignals(_params.ATR_MA_Trend_SignalOpenMethod, _params.ATR_MA_Trend_SignalOpenLevel, _params.ATR_MA_Trend_SignalOpenFilterMethod,
+                       _params.ATR_MA_Trend_SignalOpenBoostMethod, _params.ATR_MA_Trend_SignalCloseMethod, _params.ATR_MA_Trend_SignalCloseLevel);
+    sparams.SetPriceLimits(_params.ATR_MA_Trend_PriceLimitMethod, _params.ATR_MA_Trend_PriceLimitLevel);
+    sparams.SetMaxSpread(_params.ATR_MA_Trend_MaxSpread);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_ATR_MA_Trend(sparams, "ATR");
+    Strategy *_strat = new Stg_ATR_MA_Trend(sparams, "ATR MA Trend");
     return _strat;
   }
 
@@ -95,20 +108,30 @@ class Stg_ATR_MA_Trend : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    Indi_ATR *_indi = Data();
+    Indi_ATR_MA_Trend *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid();
     bool _result = _is_valid;
+    if (!_result) {
+      // Returns false when indicator data is not valid.
+      return false;
+    }
+    double level = _level * Chart().GetPipSize();
     switch (_cmd) {
-      // Note: ATR doesn't give independent signals. Is used to define volatility (trend strength).
-      // Principle: trend must be strengthened. Together with that ATR grows.
       case ORDER_TYPE_BUY:
-        _result &= _indi[CURR].value[0] + _level >= _indi[PREV].value[0];
-        if (METHOD(_method, 0)) _result &= _indi[PPREV].value[0] + _level >= _indi[PREV].value[0];
+        _result = _indi[CURR].value[ATR_MA_TREND_DOWN] > 0
+          || _indi[CURR].value[ATR_MA_TREND_DOWN2] > 0;
         break;
       case ORDER_TYPE_SELL:
-        _result &= _indi[CURR].value[0] + _level <= _indi[PREV].value[0];
-        if (METHOD(_method, 0)) _result &= _indi[PPREV].value[0] + _level <= _indi[PREV].value[0];
+        _result = _indi[CURR].value[ATR_MA_TREND_UP] > 0
+          || _indi[CURR].value[ATR_MA_TREND_UP2] > 0;
         break;
+    }
+    if (_result) {
+      double _down1 = _indi[CURR].value[ATR_MA_TREND_DOWN];
+      double _down2 = _indi[CURR].value[ATR_MA_TREND_DOWN2];
+      double _up1 = _indi[CURR].value[ATR_MA_TREND_UP];
+      double _up2 = _indi[CURR].value[ATR_MA_TREND_UP2];
+      //DebugBreak();
     }
     return _result;
   }
@@ -156,7 +179,7 @@ class Stg_ATR_MA_Trend : public Strategy {
    * Gets price limit value for profit take or stop loss.
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
-    Indi_ATR *_indi = Data();
+    Indi_ATR_MA_Trend *_indi = Data();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
