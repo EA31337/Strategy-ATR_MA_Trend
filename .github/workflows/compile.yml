@@ -21,15 +21,21 @@ jobs:
         with:
           path: Include/EA31337-classes
           repository: EA31337/EA31337-classes
-      - name: Compiles (MQL4)
-        uses: fx31337/mql-compile-action@master
-        with:
-          mt-version: 5.0.0.2361
-          path: Stg_ATR.mq4
-          verbose: true
-      - name: Compiles (MQL5)
+      - name: Compiles Indicator (MQL5)
         uses: fx31337/mql-compile-action@master
         with:
           mt-version: 5.0.0.2515
-          path: Stg_ATR.mq5
+          path: Indi_ATR_MA_Trend.mq5
+          verbose: true
+      - name: Compiles Strategy (MQL4)
+        uses: fx31337/mql-compile-action@master
+        with:
+          mt-version: 5.0.0.2361
+          path: Stg_ATR_MA_Trend.mq4
+          verbose: true
+      - name: Compiles Strategy (MQL5)
+        uses: fx31337/mql-compile-action@master
+        with:
+          mt-version: 5.0.0.2515
+          path: Stg_ATR_MA_Trend.mq5
           verbose: true
