@@ -118,12 +118,10 @@ class Stg_ATR_MA_Trend : public Strategy {
     double level = _level * Chart().GetPipSize();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        _result = _indi[CURR].value[ATR_MA_TREND_DOWN] > 0
-          || _indi[CURR].value[ATR_MA_TREND_DOWN2] > 0;
+        _result = _indi[CURR].value[ATR_MA_TREND_DOWN2] > 0;
         break;
       case ORDER_TYPE_SELL:
-        _result = _indi[CURR].value[ATR_MA_TREND_UP] > 0
-          || _indi[CURR].value[ATR_MA_TREND_UP2] > 0;
+        _result = _indi[CURR].value[ATR_MA_TREND_UP2] > 0;
         break;
     }
     if (_result) {
