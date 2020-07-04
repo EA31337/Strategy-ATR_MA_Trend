@@ -1,0 +1,35 @@
+---
+name: Compile
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - '**.mq[45h]'
+      - '.github/workflows/compile.yml'
+  push:
+    paths:
+      - '**.mq[45h]'
+      - '.github/workflows/compile.yml'
+
+jobs:
+  Compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          path: Include/EA31337-classes
+          repository: EA31337/EA31337-classes
+      - name: Compiles (MQL4)
+        uses: fx31337/mql-compile-action@master
+        with:
+          mt-version: 5.0.0.2361
+          path: Stg_ATR.mq4
+          verbose: true
+      - name: Compiles (MQL5)
+        uses: fx31337/mql-compile-action@master
+        with:
+          mt-version: 5.0.0.2515
+          path: Stg_ATR.mq5
+          verbose: true
