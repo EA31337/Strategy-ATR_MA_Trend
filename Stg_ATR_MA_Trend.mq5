@@ -6,10 +6,10 @@
 
 /**
  * @file
- * Implements ATR strategy.
+ * Implements ATR MA Trend strategy.
  */
 
-// Includes EA31337 framework.
+// Includes.
 #include <EA31337-classes/EA.mqh>
 
 // Inputs.
@@ -18,14 +18,13 @@ input ENUM_LOG_LEVEL Log_Level = V_INFO;  // Log level.
 input bool Info_On_Chart = true;          // Display info on chart.
 
 // Includes strategy.
-#include "Stg_ATR.mqh"
+#include "Stg_ATR_MA_Trend.mqh"
 
 // Defines.
-#define ea_name "Stg_ATR"
+#define ea_name "Stg_ATR_MA_Trend"
 #define ea_version "1.000"
 #define ea_desc "Multi-strategy advanced trading robot"
-#define ea_link "https://github.com/EA31337/Strategy-ATR"
-#define ea_author "kenorb"
+#define ea_link "https://github.com/EA31337/Strategy-Stg_ATR_MA_Trend"
 
 // Properties.
 #property version ea_version
@@ -34,7 +33,6 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #property description ea_desc
 #endif
 #property link ea_link
-#property copyright "Copyright 2016-2020, 31337 Investments Ltd"
 
 // Class variables.
 EA *ea;
@@ -51,7 +49,7 @@ int OnInit() {
   EAParams ea_params(__FILE__, Log_Level);
   ea_params.SetChartInfoFreq(Info_On_Chart ? 2 : 0);
   ea = new EA(ea_params);
-  _result &= ea.StrategyAdd<Stg_ATR>(Active_Tfs);
+  _result &= ea.StrategyAdd<Stg_ATR_MA_Trend>(Active_Tfs);
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
 

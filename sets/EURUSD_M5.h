@@ -5,8 +5,8 @@
 //+------------------------------------------------------------------+
 
 // Defines strategy's parameter values for the given pair symbol and timeframe.
-struct Stg_ATR_EURUSD_M5_Params : Stg_ATR_Params {
-  Stg_ATR_EURUSD_M5_Params() {
+struct Stg_ATR_MA_Trend_EURUSD_M5_Params : Stg_ATR_MA_Trend_Params {
+  Stg_ATR_MA_Trend_EURUSD_M5_Params() {
     ATR_Period = 14;
     ATR_Applied_Price = 1;
     ATR_Shift = 0;
@@ -18,4 +18,4 @@ struct Stg_ATR_EURUSD_M5_Params : Stg_ATR_Params {
     ATR_PriceLimitLevel = 2;
     ATR_MaxSpread = 0;
   }
-} stg_atr_m5;
+} stg_atr_ma_trend_m5;

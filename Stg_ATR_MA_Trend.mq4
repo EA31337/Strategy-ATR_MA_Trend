@@ -6,8 +6,8 @@
 
 /**
  * @file
- * Implements ATR strategy.
+ * Implements ATR MA Trend strategy.
  */
 
 // Includes the main code.
-#include "Stg_ATR.mq5"
+#include "Stg_ATR_MA_Trend.mq5"

@@ -1,12 +1,12 @@
 //+------------------------------------------------------------------+
 //|                  EA31337 - multi-strategy advanced trading robot |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
+//|                                     Copyright 2016-2020, FX31337 |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
 /**
  * @file
- * Implements ATR strategy based on the Average True Range indicator.
+ * Strategy based on the Average True Range (ATR) and Moving Average (MA) indicators.
  */
 
 // Includes.
@@ -14,7 +14,7 @@
 #include <EA31337-classes/Strategy.mqh>
 
 // User input params.
-INPUT string __ATR_Parameters__ = "-- ATR strategy params --";  // >>> ATR <<<
+INPUT string __ATR_Parameters__ = "-- ATR MA Trend strategy params --";  // >>> ATR <<<
 INPUT int ATR_Period = 14;                                      // Period
 INPUT int ATR_Shift = 0;                                        // Shift (relative to the current bar, 0 - default)
 INPUT int ATR_SignalOpenMethod = 0;                             // Signal open method (0-31)
@@ -28,7 +28,7 @@ INPUT double ATR_PriceLimitLevel = 2;                           // Price limit l
 INPUT double ATR_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
-struct Stg_ATR_Params : StgParams {
+struct Stg_ATR_MA_Trend_Params : StgParams {
   unsigned int ATR_Period;
   ENUM_APPLIED_PRICE ATR_Applied_Price;
   int ATR_Shift;
@@ -43,7 +43,7 @@ struct Stg_ATR_Params : StgParams {
   double ATR_MaxSpread;
 
   // Constructor: Set default param values.
-  Stg_ATR_Params()
+  Stg_ATR_MA_Trend_Params()
       : ATR_Period(::ATR_Period),
         ATR_Shift(::ATR_Shift),
         ATR_SignalOpenMethod(::ATR_SignalOpenMethod),
@@ -65,16 +65,16 @@ struct Stg_ATR_Params : StgParams {
 #include "sets/EURUSD_M30.h"
 #include "sets/EURUSD_M5.h"
 
-class Stg_ATR : public Strategy {
+class Stg_ATR_MA_Trend : public Strategy {
  public:
-  Stg_ATR(StgParams &_params, string _name) : Strategy(_params, _name) {}
+  Stg_ATR_MA_Trend(StgParams &_params, string _name) : Strategy(_params, _name) {}
 
-  static Stg_ATR *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+  static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Stg_ATR_Params _params;
+    Stg_ATR_MA_Trend_Params _params;
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Stg_ATR_Params>(_params, _tf, stg_atr_m1, stg_atr_m5, stg_atr_m15, stg_atr_m30, stg_atr_h1,
-                                    stg_atr_h4, stg_atr_h4);
+      SetParamsByTf<Stg_ATR_MA_Trend_Params>(_params, _tf, stg_atr_ma_trend_m1, stg_atr_ma_trend_m5, stg_atr_ma_trend_m15, stg_atr_ma_trend_m30, stg_atr_ma_trend_h1,
+                                    stg_atr_ma_trend_h4, stg_atr_ma_trend_h4);
     }
     // Initialize strategy parameters.
     ATRParams atr_params(_params.ATR_Period);
@@ -87,7 +87,7 @@ class Stg_ATR : public Strategy {
     sparams.SetPriceLimits(_params.ATR_PriceLimitMethod, _params.ATR_PriceLimitLevel);
     sparams.SetMaxSpread(_params.ATR_MaxSpread);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_ATR(sparams, "ATR");
+    Strategy *_strat = new Stg_ATR_MA_Trend(sparams, "ATR");
     return _strat;
   }
 
