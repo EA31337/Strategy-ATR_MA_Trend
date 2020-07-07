@@ -93,7 +93,7 @@ class Stg_ATR_MA_Trend : public Strategy {
       );
     atr_ma_params.SetTf(_tf);
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_ATR_MA_Trend(atr_ma_params), NULL, NULL);
-    sparams.logger.SetLevel(_log_level);
+    sparams.logger.Ptr().SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.ATR_MA_Trend_SignalOpenMethod, _params.ATR_MA_Trend_SignalOpenLevel, _params.ATR_MA_Trend_SignalOpenFilterMethod,
                        _params.ATR_MA_Trend_SignalOpenBoostMethod, _params.ATR_MA_Trend_SignalCloseMethod, _params.ATR_MA_Trend_SignalCloseLevel);
@@ -108,6 +108,7 @@ class Stg_ATR_MA_Trend : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+    Chart *_chart = this.Chart();
     Indi_ATR_MA_Trend *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid();
     bool _result = _is_valid;
@@ -115,7 +116,7 @@ class Stg_ATR_MA_Trend : public Strategy {
       // Returns false when indicator data is not valid.
       return false;
     }
-    double level = _level * Chart().GetPipSize();
+    double level = _level * _chart.GetPipSize();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _result = _indi[CURR].value[ATR_MA_TREND_DOWN2] > 0;
