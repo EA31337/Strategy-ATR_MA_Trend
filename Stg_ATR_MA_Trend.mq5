@@ -27,7 +27,7 @@ input bool Info_On_Chart = true;          // Display info on chart.
 
 // Defines.
 #define ea_name "Strategy ATR MA Trend"
-#define ea_version "1.004"
+#define ea_version "1.005"
 #define ea_desc "Strategy based on EA31337 framework."
 #define ea_link "https://github.com/EA31337/Strategy-Stg_ATR_MA_Trend"
 
@@ -38,7 +38,12 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #property description ea_desc
 #endif
 #property link ea_link
-#property tester_indicator "Indicators\\ATR_MA_Trend.mq5"
+#ifdef __resource__
+#ifdef __MQL5__
+#property tester_indicator "::Indicators\\ATR_MA_Trend.ex5"
+#property tester_library "::Indicators\\ATR_MA_Trend.ex5"
+#endif
+#endif
 
 // Load external resources.
 #ifdef __resource__
@@ -60,7 +65,6 @@ EA *ea;
 int OnInit() {
   bool _result = true;
   EAParams ea_params(__FILE__, Log_Level);
-  ea_params.Set(EA_PARAM_CHART_INFO_FREQ, Info_On_Chart ? 2 : 0);
   ea = new EA(ea_params);
   _result &= ea.StrategyAdd<Stg_ATR_MA_Trend>(Active_Tfs);
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
@@ -74,8 +78,7 @@ int OnInit() {
  */
 void OnTick() {
   ea.ProcessTick();
-  if (!ea.Terminal().IsOptimization()) {
-    ea.Log().Flush(2);
+  if (!ea.GetTerminal().IsOptimization()) {
     ea.UpdateInfoOnChart();
   }
 }

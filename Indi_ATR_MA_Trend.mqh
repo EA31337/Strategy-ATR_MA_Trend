@@ -33,9 +33,13 @@ struct Indi_ATR_MA_Trend_Params : IndicatorParams {
         atr_period(_atr_period),
         atr_sensitivity(_atr_sensitivity),
         indi_shift(_indi_shift) {
+#ifdef __resource__
+    custom_indi_name = "::Indicators\\ATR_MA_Trend";
+#else
+    custom_indi_name = "ATR_MA_Trend";
+#endif
     itype = INDI_ATR;
     max_modes = FINAL_INDI_ATR_MA_TREND_ENTRY;
-    custom_indi_name = "Indi_ATR_MA_Trend";
     SetDataSourceType(IDATA_ICUSTOM);
     SetDataValueType(TYPE_DOUBLE);
   };
@@ -68,42 +72,6 @@ class Indi_ATR_MA_Trend : public Indicator {
   }
 
   /**
-   * Returns value for the indicator.
-   */
-  static double GetValue(string _symbol, ENUM_TIMEFRAMES _tf, int _period, double _shift_percent, int _atr_period,
-                         double _atr_sensitivity, int _indi_shift = 0, int _mode = 0, int _shift = 0,
-                         Indicator *_obj = NULL) {
-#ifdef __MQL4__
-    return ::iCustom(_symbol, _tf, "Indi_ATR_MA_Trend", _period, _shift_percent, _atr_period, _atr_sensitivity,
-                     _indi_shift);
-#else  // __MQL5__
-    int _handle = Object::IsValid(_obj) ? _obj.GetState().GetHandle() : NULL;
-    double _res[];
-    if (_handle == NULL || _handle == INVALID_HANDLE) {
-      // @fixme: Load indicator from the current folder?
-      if ((_handle = ::iCustom(_symbol, _tf, "Indi_ATR_MA_Trend", _period, _shift_percent, _atr_period,
-                               _atr_sensitivity, _indi_shift)) == INVALID_HANDLE) {
-        SetUserError(ERR_USER_INVALID_HANDLE);
-        return EMPTY_VALUE;
-      } else if (Object::IsValid(_obj)) {
-        _obj.SetHandle(_handle);
-      }
-    }
-    int _bars_calc = BarsCalculated(_handle);
-    if (GetLastError() > 0) {
-      return EMPTY_VALUE;
-    } else if (_bars_calc <= 2) {
-      SetUserError(ERR_USER_INVALID_BUFF_NUM);
-      return EMPTY_VALUE;
-    }
-    if (CopyBuffer(_handle, _mode, _shift, 1, _res) < 0) {
-      return EMPTY_VALUE;
-    }
-    return _res[0];
-#endif
-  }
-
-  /**
    * Returns the indicator's value.
    */
   double GetValue(int _mode = 0, int _shift = 0) {
@@ -114,9 +82,9 @@ class Indi_ATR_MA_Trend : public Indicator {
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = Indi_ATR_MA_Trend::GetValue(Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                                             GetPeriod(), GetShiftPercent(), GetATRPeriod(), GetATRSensitivity(),
-                                             GetIndiShift(), _mode, _shift, GetPointer(this));
+        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
+                         params.custom_indi_name, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetShiftPercent(),
+                         GetATRPeriod(), GetATRSensitivity(), GetIndiShift(), _mode, _shift);
         break;
       case IDATA_INDICATOR:
         // @todo: Add custom calculation.
@@ -133,30 +101,19 @@ class Indi_ATR_MA_Trend : public Indicator {
   IndicatorDataEntry GetEntry(int _shift = 0) {
     long _bar_time = GetBarTime(_shift);
     unsigned int _position;
-    IndicatorDataEntry _entry;
+    IndicatorDataEntry _entry(FINAL_INDI_ATR_MA_TREND_ENTRY);
     if (idata.KeyExists(_bar_time, _position)) {
       _entry = idata.GetByPos(_position);
     } else {
       _entry.timestamp = GetBarTime(_shift);
       for (int _mode = 0; _mode < FINAL_INDI_ATR_MA_TREND_ENTRY; _mode++) {
-        _entry.values[_mode] = Indi_ATR_MA_Trend::GetValue(_mode, _shift);
+        _entry.values[_mode] = GetValue(_mode, _shift);
       }
       _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(DBL_MAX));
       if (_entry.IsValid()) idata.Add(_entry, _bar_time);
     }
     return _entry;
   }
-
-  /**
-   * Returns the indicator's entry value.
-   */
-  /*
-  MqlParam GetEntryValue(int _shift = 0, int _mode = 0) {
-    MqlParam _param = {TYPE_DOUBLE};
-    _param.double_value = GetEntry(_shift).values[_mode];
-    return _param;
-  }
-  */
 
   /* Getters */
 

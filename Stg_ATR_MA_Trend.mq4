@@ -11,3 +11,8 @@
 
 // Includes the main code.
 #include "Stg_ATR_MA_Trend.mq5"
+
+// Load external resources.
+#ifdef __resource__
+//#resource "Indicators\\ATR_MA_Trend.ex4"
+#endif

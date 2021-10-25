@@ -14,20 +14,23 @@
 #include "Indi_ATR_MA_Trend.mqh"
 
 // User input params.
-INPUT string __ATR_MA_Trend_Parameters__ = "-- TMA True strategy params --";  // >>> TMA True <<<
-INPUT float ATR_MA_Trend_LotSize = 0;                                         // Lot size
-INPUT int ATR_MA_Trend_SignalOpenMethod = 2;                                  // Signal open method
-INPUT int ATR_MA_Trend_SignalOpenFilterMethod = 32;                           // Signal open filter method
-INPUT float ATR_MA_Trend_SignalOpenLevel = 0.0f;                              // Signal open level
-INPUT int ATR_MA_Trend_SignalOpenBoostMethod = 0;                             // Signal open boost method
-INPUT int ATR_MA_Trend_SignalCloseMethod = 2;                                 // Signal close method
-INPUT float ATR_MA_Trend_SignalCloseLevel = 0.0f;                             // Signal close level
-INPUT int ATR_MA_Trend_PriceStopMethod = 1;                                   // Price stop method
-INPUT float ATR_MA_Trend_PriceStopLevel = 2;                                  // Price stop level
-INPUT int ATR_MA_Trend_TickFilterMethod = 1;                                  // Tick filter method (0-255)
-INPUT float ATR_MA_Trend_MaxSpread = 4.0;                                     // Max spread to trade (in pips)
-INPUT short ATR_MA_Trend_Shift = 0;           // Shift (relative to the current bar, 0 - default)
-INPUT int ATR_MA_Trend_OrderCloseTime = -20;  // Order close time in mins (>0) or bars (<0)
+INPUT float ATR_MA_Trend_LotSize = 0;                // Lot size
+INPUT int ATR_MA_Trend_SignalOpenMethod = 0;         // Signal open method
+INPUT int ATR_MA_Trend_SignalOpenFilterMethod = 32;  // Signal open filter method
+INPUT int ATR_MA_Trend_SignalOpenFilterTime = 9;     // Signal open filter time
+INPUT float ATR_MA_Trend_SignalOpenLevel = 0.0f;     // Signal open level
+INPUT int ATR_MA_Trend_SignalOpenBoostMethod = 0;    // Signal open boost method
+INPUT int ATR_MA_Trend_SignalCloseMethod = 0;        // Signal close method
+INPUT int ATR_MA_Trend_SignalCloseFilter = 32;       // Signal close filter (-127-127)
+INPUT float ATR_MA_Trend_SignalCloseLevel = 0.0f;    // Signal close level
+INPUT int ATR_MA_Trend_PriceStopMethod = 1;          // Price stop method (0-127)
+INPUT float ATR_MA_Trend_PriceStopLevel = 2;         // Price stop level
+INPUT int ATR_MA_Trend_TickFilterMethod = 28;        // Tick filter method (0-255)
+INPUT float ATR_MA_Trend_MaxSpread = 4.0;            // Max spread to trade (in pips)
+INPUT short ATR_MA_Trend_Shift = 0;                  // Shift (relative to the current bar, 0 - default)
+INPUT int ATR_MA_Trend_OrderCloseLoss = 0;           // Order close loss
+INPUT int ATR_MA_Trend_OrderCloseProfit = 0;         // Order close profit
+INPUT int ATR_MA_Trend_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
 
 INPUT string __ATR_MA_Trend_Indi_ATR_MA_Trend_Params__ =
     "-- TMA True: ATR MA Trend indicator params --";       // >>> ATR MA Trend strategy: ATR MA Trend indicator <<<
@@ -52,9 +55,15 @@ struct Stg_ATR_MA_Trend_Params_Defaults : StgParams {
   Stg_ATR_MA_Trend_Params_Defaults()
       : StgParams(::ATR_MA_Trend_SignalOpenMethod, ::ATR_MA_Trend_SignalOpenFilterMethod,
                   ::ATR_MA_Trend_SignalOpenLevel, ::ATR_MA_Trend_SignalOpenBoostMethod,
-                  ::ATR_MA_Trend_SignalCloseMethod, ::ATR_MA_Trend_SignalCloseLevel, ::ATR_MA_Trend_PriceStopMethod,
-                  ::ATR_MA_Trend_PriceStopLevel, ::ATR_MA_Trend_TickFilterMethod, ::ATR_MA_Trend_MaxSpread,
-                  ::ATR_MA_Trend_Shift, ::ATR_MA_Trend_OrderCloseTime) {}
+                  ::ATR_MA_Trend_SignalCloseMethod, ::ATR_MA_Trend_SignalCloseFilter, ::ATR_MA_Trend_SignalCloseLevel,
+                  ::ATR_MA_Trend_PriceStopMethod, ::ATR_MA_Trend_PriceStopLevel, ::ATR_MA_Trend_TickFilterMethod,
+                  ::ATR_MA_Trend_MaxSpread, ::ATR_MA_Trend_Shift) {
+    Set(STRAT_PARAM_LS, ATR_MA_Trend_LotSize);
+    Set(STRAT_PARAM_OCL, ATR_MA_Trend_OrderCloseLoss);
+    Set(STRAT_PARAM_OCP, ATR_MA_Trend_OrderCloseProfit);
+    Set(STRAT_PARAM_OCT, ATR_MA_Trend_OrderCloseTime);
+    Set(STRAT_PARAM_SOFT, ATR_MA_Trend_SignalOpenFilterTime);
+  }
 } stg_atrmat_defaults;
 
 // Loads pair specific param values.
@@ -93,27 +102,22 @@ class Stg_ATR_MA_Trend : public Strategy {
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Indicator *_indi = GetIndicator();
     Chart *_chart = trade.GetChart();
-    bool _is_valid = _indi[_shift].IsValid();
-    bool _result = _is_valid;
+    bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift);
     if (!_result) {
       // Returns false when indicator data is not valid.
       return false;
     }
-    double level = _level * _chart.GetPipSize();
+    double _down1 = _indi[_shift][(int)INDI_ATR_MA_TREND_DOWN];
+    double _down2 = _indi[_shift][(int)INDI_ATR_MA_TREND_DOWN2];
+    double _up1 = _indi[_shift][(int)INDI_ATR_MA_TREND_UP];
+    double _up2 = _indi[_shift][(int)INDI_ATR_MA_TREND_UP2];
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        _result = _indi[_shift][(int)INDI_ATR_MA_TREND_DOWN2] > 0;
+        _result &= _indi[_shift][(int)INDI_ATR_MA_TREND_DOWN2] > 0;
         break;
       case ORDER_TYPE_SELL:
-        _result = _indi[_shift][(int)INDI_ATR_MA_TREND_UP2] > 0;
+        _result &= _indi[_shift][(int)INDI_ATR_MA_TREND_UP2] > 0;
         break;
-    }
-    if (_result) {
-      double _down1 = _indi[_shift][(int)INDI_ATR_MA_TREND_DOWN];
-      double _down2 = _indi[_shift][(int)INDI_ATR_MA_TREND_DOWN2];
-      double _up1 = _indi[_shift][(int)INDI_ATR_MA_TREND_UP];
-      double _up2 = _indi[_shift][(int)INDI_ATR_MA_TREND_UP2];
-      // DebugBreak();
     }
     return _result;
   }
