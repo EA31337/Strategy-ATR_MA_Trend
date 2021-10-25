@@ -52,24 +52,14 @@ struct Indi_ATR_MA_Trend_Params : IndicatorParams {
 /**
  * Indicator class.
  */
-class Indi_ATR_MA_Trend : public Indicator {
- protected:
-  Indi_ATR_MA_Trend_Params params;
-
+class Indi_ATR_MA_Trend : public Indicator<Indi_ATR_MA_Trend_Params> {
  public:
   /**
    * Class constructor.
    */
-  Indi_ATR_MA_Trend(Indi_ATR_MA_Trend_Params &_p)
-      : params(_p.period, _p.shift_percent, _p.atr_period, _p.atr_sensitivity, _p.indi_shift, _p.shift),
-        Indicator((IndicatorParams)_p) {
-    params = _p;
-  }
-  Indi_ATR_MA_Trend(Indi_ATR_MA_Trend_Params &_p, ENUM_TIMEFRAMES _tf)
-      : params(_p.period, _p.shift_percent, _p.atr_period, _p.atr_sensitivity, _p.indi_shift, _p.shift),
-        Indicator(INDI_ATR, _tf) {
-    params = _p;
-  }
+  Indi_ATR_MA_Trend(Indi_ATR_MA_Trend_Params &_p, IndicatorBase *_indi_src = NULL)
+      : Indicator<Indi_ATR_MA_Trend_Params>(_p, _indi_src) {}
+  Indi_ATR_MA_Trend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf){};
 
   /**
    * Returns the indicator's value.
@@ -77,13 +67,13 @@ class Indi_ATR_MA_Trend : public Indicator {
   double GetValue(int _mode = 0, int _shift = 0) {
     ResetLastError();
     double _value = EMPTY_VALUE;
-    switch (params.idstype) {
+    switch (iparams.idstype) {
       case IDATA_BUILTIN:
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         params.custom_indi_name, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetShiftPercent(),
+                         iparams.custom_indi_name, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetShiftPercent(),
                          GetATRPeriod(), GetATRSensitivity(), GetIndiShift(), _mode, _shift);
         break;
       case IDATA_INDICATOR:
@@ -95,57 +85,37 @@ class Indi_ATR_MA_Trend : public Indicator {
     return _value;
   }
 
-  /**
-   * Returns the indicator's struct value.
-   */
-  IndicatorDataEntry GetEntry(int _shift = 0) {
-    long _bar_time = GetBarTime(_shift);
-    unsigned int _position;
-    IndicatorDataEntry _entry(FINAL_INDI_ATR_MA_TREND_ENTRY);
-    if (idata.KeyExists(_bar_time, _position)) {
-      _entry = idata.GetByPos(_position);
-    } else {
-      _entry.timestamp = GetBarTime(_shift);
-      for (int _mode = 0; _mode < FINAL_INDI_ATR_MA_TREND_ENTRY; _mode++) {
-        _entry.values[_mode] = GetValue(_mode, _shift);
-      }
-      _entry.SetFlag(INDI_ENTRY_FLAG_IS_VALID, !_entry.HasValue<double>(DBL_MAX));
-      if (_entry.IsValid()) idata.Add(_entry, _bar_time);
-    }
-    return _entry;
-  }
-
   /* Getters */
 
   /**
    * Gets period value.
    */
-  int GetPeriod() { return params.period; }
+  int GetPeriod() { return iparams.period; }
 
   /**
    * Gets indicator shift in percent.
    */
-  double GetShiftPercent() { return params.shift_percent; }
+  double GetShiftPercent() { return iparams.shift_percent; }
 
   /**
    * Gets ATR indicator period.
    */
-  int GetATRPeriod() { return params.atr_period; }
+  int GetATRPeriod() { return iparams.atr_period; }
 
   /**
    * Gets ATR indicator sensitivity.
    */
-  double GetATRSensitivity() { return params.atr_sensitivity; }
+  double GetATRSensitivity() { return iparams.atr_sensitivity; }
 
   /**
    * Gets indicator shift.
    */
-  int GetIndiShift() { return params.indi_shift; }
+  int GetIndiShift() { return iparams.indi_shift; }
 
   /**
    * Gets buffer shift.
    */
-  int GetShift() { return params.shift; }
+  int GetShift() { return iparams.shift; }
 
   /* Setters */
 
@@ -154,7 +124,7 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void SetPeriod(int _period) {
     istate.is_changed = true;
-    params.period = _period;
+    iparams.period = _period;
   }
 
   /**
@@ -162,7 +132,7 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void SetAppliedPrice(ENUM_APPLIED_PRICE _applied_price) {
     istate.is_changed = true;
-    params.applied_price = _applied_price;
+    iparams.applied_price = _applied_price;
   }
 
   /**
@@ -170,7 +140,7 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void GetShiftPercent(double _shift_percent) {
     istate.is_changed = true;
-    params.shift_percent = _shift_percent;
+    iparams.shift_percent = _shift_percent;
   }
 
   /**
@@ -178,7 +148,7 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void GetATRPeriod(int _atr_period) {
     istate.is_changed = true;
-    params.atr_period = _atr_period;
+    iparams.atr_period = _atr_period;
   }
 
   /**
@@ -186,7 +156,7 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void GetATRSensitivity(double _atr_sensitivity) {
     istate.is_changed = true;
-    params.atr_sensitivity = _atr_sensitivity;
+    iparams.atr_sensitivity = _atr_sensitivity;
   }
 
   /**
@@ -194,7 +164,7 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void GetIndiShift(int _indi_shift) {
     istate.is_changed = true;
-    params.indi_shift = _indi_shift;
+    iparams.indi_shift = _indi_shift;
   }
 
   /**
@@ -202,6 +172,6 @@ class Indi_ATR_MA_Trend : public Indicator {
    */
   void GetShift(int _shift) {
     istate.is_changed = true;
-    params.shift = _shift;
+    iparams.shift = _shift;
   }
 };

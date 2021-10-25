@@ -66,20 +66,23 @@ struct Stg_ATR_MA_Trend_Params_Defaults : StgParams {
   }
 } stg_atrmat_defaults;
 
+#ifdef __config__
 // Loads pair specific param values.
-#include "config/EURUSD_H1.h"
-#include "config/EURUSD_H4.h"
-#include "config/EURUSD_M1.h"
-#include "config/EURUSD_M15.h"
-#include "config/EURUSD_M30.h"
-#include "config/EURUSD_M5.h"
+#include "config/H1.h"
+#include "config/H4.h"
+//#include "config/H8.h"
+#include "config/M1.h"
+#include "config/M15.h"
+#include "config/M30.h"
+#include "config/M5.h"
+#endif
 
 class Stg_ATR_MA_Trend : public Strategy {
  public:
   Stg_ATR_MA_Trend(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
 
-  static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+  static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
     Indi_ATR_MA_Trend_Params _indi_params(indi_atrmat_defaults, _tf);
     StgParams _stg_params(stg_atrmat_defaults);
@@ -88,11 +91,11 @@ class Stg_ATR_MA_Trend : public Strategy {
                              stg_atr_ma_trend_m30, stg_atr_ma_trend_h1, stg_atr_ma_trend_h4, stg_atr_ma_trend_h4);
 #endif
     // Initialize indicator.
-    _stg_params.SetIndicator(new Indi_ATR_MA_Trend(_indi_params));
     // Initialize strategy instance.
     ChartParams _cparams(_tf, _Symbol);
-    TradeParams _tparams(_magic_no, _log_level);
+    TradeParams _tparams;
     Strategy *_strat = new Stg_ATR_MA_Trend(_stg_params, _tparams, _cparams, "ATR MA Trend");
+    _strat.SetIndicator(new Indi_ATR_MA_Trend(_indi_params));
     return _strat;
   }
 
@@ -100,8 +103,8 @@ class Stg_ATR_MA_Trend : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
-    Indicator *_indi = GetIndicator();
-    Chart *_chart = trade.GetChart();
+    Indi_ATR_MA_Trend *_indi = GetIndicator();
+    Chart *_chart = (Chart *)_indi;
     bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift);
     if (!_result) {
       // Returns false when indicator data is not valid.

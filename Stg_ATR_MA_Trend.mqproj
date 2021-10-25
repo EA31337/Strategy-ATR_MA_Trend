@@ -3,7 +3,7 @@
   "program_type":"expert",
   "copyright"   :"Copyright 2016-2021, kenorb",
   "link"        :"https:\/\/github.com\/EA31337\/Strategy-ATR_MA_Trend",
-  "version"     :"1.007",
+  "version"     :"1.008",
   "description" :"ATR MA Trend strategy based on EA31337 framework",
   "optimize"    :"0",
   "fpzerocheck" :"0",
