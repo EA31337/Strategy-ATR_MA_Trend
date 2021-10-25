@@ -12,6 +12,11 @@ Strategy based on the Average True Range (ATR) and Moving Average (MA) indicator
 
 | Tag      | Framework |
 |:--------:|:---------:|
+| v1.001   | v2.001    |
+| v1.002   | v2.002    |
+| v1.003   | v2.003    |
+| v1.004   | v2.004    |
+| v1.005   | v2.005    |
 | v1.006   | v2.006    |
 | v1.007   | v2.007    |
 | v1.008   | v2.008    |
