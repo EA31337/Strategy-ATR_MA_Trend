@@ -4,39 +4,97 @@ name: Compile
 # yamllint disable-line rule:truthy
 on:
   pull_request:
-    paths:
-      - '**.mq[45h]'
-      - '.github/workflows/compile.yml'
+    branches:
+      - 'master'
+      - 'dev*'
+    paths-ignore:
+      - '*.md'
+      - '.git*'
   push:
-    paths:
-      - '**.mq[45h]'
-      - '.github/workflows/compile.yml'
+    branches:
+      - 'master'
+      - 'dev*'
+    paths-ignore:
+      - '*.md'
+      - '.git*'
 
 jobs:
-  Compile:
+  Compile-EA:
+    defaults:
+      run:
+        shell: powershell
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/checkout@v2
         with:
           path: Include/EA31337-classes
-          ref: v2.001
+          ref: v2.002
           repository: EA31337/EA31337-classes
-      - name: Compiles Indicator (MQL5)
+      - name: Enables config mode
+        run: echo '#define __config__' > config/define.h
+      - name: Enables resource mode
+        run: echo '#define __resource__' >> config/define.h
+      - name: Compile strategy for MQL4
+        if: false
         uses: fx31337/mql-compile-action@master
         with:
-          mt-version: 5.0.0.2515
-          path: Indi_ATR_MA_Trend.mq5
-          verbose: true
-      - name: Compiles Strategy (MQL4)
-        uses: fx31337/mql-compile-action@master
-        with:
+          include: .
+          init-platform: true
           mt-version: 5.0.0.2361
           path: Stg_ATR_MA_Trend.mq4
           verbose: true
-      - name: Compiles Strategy (MQL5)
+      - name: Enables config mode only
+        run: echo '#define __config__' > config/define.h
+      - name: Compile strategy for MQL5
         uses: fx31337/mql-compile-action@master
         with:
+          include: .
           mt-version: 5.0.0.2515
           path: Stg_ATR_MA_Trend.mq5
           verbose: true
+      - name: List compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+      - run: Get-Location
+      - name: Upload strategy artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: EA
+          path: '*.ex?'
+  Compile-Indicators:
+    defaults:
+      run:
+        shell: powershell
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          path: Include/EA31337-classes
+          ref: v2.002
+          repository: EA31337/EA31337-classes
+      - name: Compile required indicator for MQL4
+        if: false
+        uses: fx31337/mql-compile-action@master
+        with:
+          include: .
+          init-platform: true
+          mt-version: 5.0.0.2361
+          path: Indicators/Indi_ATR_MA_Trend.mq4
+          verbose: true
+      - name: Compile required indicator for MQL5
+        uses: fx31337/mql-compile-action@master
+        with:
+          include: .
+          init-platform: true
+          mt-version: 5.0.0.2515
+          path: Indicators/Indi_ATR_MA_Trend.mq5
+          verbose: true
+      - name: List compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+      - run: Get-Location
+      - name: Upload indicator artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Indicators
+          path: 'Indicators/*.ex?'

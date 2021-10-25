@@ -18,7 +18,7 @@
 #include <EA31337-classes/Strategy.mqh>
 
 // Inputs.
-input int Active_Tfs = 127;               // Activated timeframes (1-255) [M1=1,M5=2,M15=4,M30=8,H1=16,H2=32,H4=64...]
+input int Active_Tfs = 15;                // Activated timeframes (1-255) [M1=1,M5=2,M15=4,M30=8,H1=16,H4=32,H8=64...]
 input ENUM_LOG_LEVEL Log_Level = V_INFO;  // Log level.
 input bool Info_On_Chart = true;          // Display info on chart.
 
@@ -26,9 +26,9 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #include "Stg_ATR_MA_Trend.mqh"
 
 // Defines.
-#define ea_name "Stg_ATR_MA_Trend"
-#define ea_version "1.001"
-#define ea_desc "Multi-strategy advanced trading robot"
+#define ea_name "Strategy ATR MA Trend"
+#define ea_version "1.002"
+#define ea_desc "Strategy based on EA31337 framework."
 #define ea_link "https://github.com/EA31337/Strategy-Stg_ATR_MA_Trend"
 
 // Properties.
@@ -38,9 +38,14 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #property description ea_desc
 #endif
 #property link ea_link
+#property tester_indicator "Indicators\\ATR_MA_Trend.mq5"
 
-// Properties.
-#property tester_indicator "Indi_ATR_MA_Trend.mq5"
+// Load external resources.
+#ifdef __resource__
+#ifdef __MQL5__
+#resource "Indicators\\ATR_MA_Trend.ex5"
+#endif
+#endif
 
 // Class variables.
 EA *ea;
@@ -55,7 +60,7 @@ EA *ea;
 int OnInit() {
   bool _result = true;
   EAParams ea_params(__FILE__, Log_Level);
-  ea_params.SetChartInfoFreq(Info_On_Chart ? 2 : 0);
+  ea_params.Set(EA_PARAM_CHART_INFO_FREQ, Info_On_Chart ? 2 : 0);
   ea = new EA(ea_params);
   _result &= ea.StrategyAdd<Stg_ATR_MA_Trend>(Active_Tfs);
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
@@ -70,6 +75,7 @@ int OnInit() {
 void OnTick() {
   ea.ProcessTick();
   if (!ea.Terminal().IsOptimization()) {
+    ea.Log().Flush(2);
     ea.UpdateInfoOnChart();
   }
 }

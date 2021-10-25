@@ -6,7 +6,8 @@
 
 /**
  * @file
- * Strategy based on the Average True Range (ATR) and Moving Average (MA) indicators.
+ * Implements ATR MA Trend strategy
+ * based on the Average True Range (ATR) and Moving Average (MA) indicators.
  */
 
 // Includes.
@@ -66,7 +67,8 @@ struct Stg_ATR_MA_Trend_Params_Defaults : StgParams {
 
 class Stg_ATR_MA_Trend : public Strategy {
  public:
-  Stg_ATR_MA_Trend(StgParams &_params, string _name) : Strategy(_params, _name) {}
+  Stg_ATR_MA_Trend(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
+      : Strategy(_sparams, _tparams, _cparams, _name) {}
 
   static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
@@ -78,12 +80,10 @@ class Stg_ATR_MA_Trend : public Strategy {
 #endif
     // Initialize indicator.
     _stg_params.SetIndicator(new Indi_ATR_MA_Trend(_indi_params));
-    // Initialize strategy parameters.
-    _stg_params.GetLog().SetLevel(_log_level);
-    _stg_params.SetMagicNo(_magic_no);
-    _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_ATR_MA_Trend(_stg_params, "ATR MA Trend");
+    ChartParams _cparams(_tf, _Symbol);
+    TradeParams _tparams(_magic_no, _log_level);
+    Strategy *_strat = new Stg_ATR_MA_Trend(_stg_params, _tparams, _cparams, "ATR MA Trend");
     return _strat;
   }
 
@@ -91,8 +91,8 @@ class Stg_ATR_MA_Trend : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
-    Indicator *_indi = Data();
-    Chart *_chart = sparams.GetChart();
+    Indicator *_indi = GetIndicator();
+    Chart *_chart = trade.GetChart();
     bool _is_valid = _indi[_shift].IsValid();
     bool _result = _is_valid;
     if (!_result) {
@@ -119,10 +119,10 @@ class Stg_ATR_MA_Trend : public Strategy {
   }
 
   /**
-   * Gets price limit value for profit take or stop loss.
+   * Gets price stop value for profit take or stop loss.
    */
   float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
-    Indi_ATR_MA_Trend *_indi = Data();
+    Indi_ATR_MA_Trend *_indi = GetIndicator();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
