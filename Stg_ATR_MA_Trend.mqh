@@ -16,13 +16,13 @@
 // User input params.
 INPUT string __ATR_MA_Trend_Parameters__ = "-- TMA True strategy params --";  // >>> TMA True <<<
 INPUT float ATR_MA_Trend_LotSize = 0;                                         // Lot size
-INPUT int ATR_MA_Trend_SignalOpenMethod = 0;                                  // Signal open method
-INPUT int ATR_MA_Trend_SignalOpenFilterMethod = 1;                            // Signal open filter method
+INPUT int ATR_MA_Trend_SignalOpenMethod = 2;                                  // Signal open method
+INPUT int ATR_MA_Trend_SignalOpenFilterMethod = 32;                           // Signal open filter method
 INPUT float ATR_MA_Trend_SignalOpenLevel = 0.0f;                              // Signal open level
 INPUT int ATR_MA_Trend_SignalOpenBoostMethod = 0;                             // Signal open boost method
-INPUT int ATR_MA_Trend_SignalCloseMethod = 0;                                 // Signal close method
+INPUT int ATR_MA_Trend_SignalCloseMethod = 2;                                 // Signal close method
 INPUT float ATR_MA_Trend_SignalCloseLevel = 0.0f;                             // Signal close level
-INPUT int ATR_MA_Trend_PriceStopMethod = 0;                                   // Price stop method
+INPUT int ATR_MA_Trend_PriceStopMethod = 1;                                   // Price stop method
 INPUT float ATR_MA_Trend_PriceStopLevel = 2;                                  // Price stop level
 INPUT int ATR_MA_Trend_TickFilterMethod = 1;                                  // Tick filter method (0-255)
 INPUT float ATR_MA_Trend_MaxSpread = 4.0;                                     // Max spread to trade (in pips)
@@ -116,25 +116,5 @@ class Stg_ATR_MA_Trend : public Strategy {
       // DebugBreak();
     }
     return _result;
-  }
-
-  /**
-   * Gets price stop value for profit take or stop loss.
-   */
-  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0f) {
-    Indi_ATR_MA_Trend *_indi = GetIndicator();
-    double _trail = _level * Market().GetPipSize();
-    int _direction = Order::OrderDirection(_cmd, _mode);
-    double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
-    double _result = _default_value;
-    switch (_method) {
-      case 0: {
-        int _bar_count = (int)_level * (int)_indi.GetPeriod();
-        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest<double>(_bar_count))
-                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest<double>(_bar_count));
-        break;
-      }
-    }
-    return (float)_result;
   }
 };
