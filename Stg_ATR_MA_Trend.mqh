@@ -41,15 +41,6 @@ INPUT double ATR_MA_Trend_Indi_ATR_MA_Trend_ATR_Sensitivity = 1.5;  // ATR Sensi
 INPUT int ATR_MA_Trend_Indi_ATR_MA_Trend_Indi_Shift = 0;            // Indicator Shift
 INPUT int ATR_MA_Trend_Indi_ATR_MA_Trend_Shift = 0;                 // Shift (relative to the current bar, 0 - default)
 
-// Defines struct with default user indicator values.
-struct Indi_ATR_MA_Trend_Params_Defaults : Indi_ATR_MA_Trend_Params {
-  Indi_ATR_MA_Trend_Params_Defaults()
-      : Indi_ATR_MA_Trend_Params(::ATR_MA_Trend_Indi_ATR_MA_Trend_Period, ::ATR_MA_Trend_Indi_ATR_MA_Trend_Shift_Pc,
-                                 ::ATR_MA_Trend_Indi_ATR_MA_Trend_ATR_Period,
-                                 ::ATR_MA_Trend_Indi_ATR_MA_Trend_ATR_Sensitivity,
-                                 ::ATR_MA_Trend_Indi_ATR_MA_Trend_Indi_Shift, ::ATR_MA_Trend_Indi_ATR_MA_Trend_Shift) {}
-} indi_atrmat_defaults;
-
 // Defines struct with default user strategy values.
 struct Stg_ATR_MA_Trend_Params_Defaults : StgParams {
   Stg_ATR_MA_Trend_Params_Defaults()
@@ -101,7 +92,11 @@ class Stg_ATR_MA_Trend : public Strategy {
    * Event on strategy's init.
    */
   void OnInit() {
-    Indi_ATR_MA_Trend_Params _indi_params(indi_atrmat_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    Indi_ATR_MA_Trend_Params _indi_params(
+        ::ATR_MA_Trend_Indi_ATR_MA_Trend_Period, ::ATR_MA_Trend_Indi_ATR_MA_Trend_Shift_Pc,
+        ::ATR_MA_Trend_Indi_ATR_MA_Trend_ATR_Period, ::ATR_MA_Trend_Indi_ATR_MA_Trend_ATR_Sensitivity,
+        ::ATR_MA_Trend_Indi_ATR_MA_Trend_Indi_Shift, ::ATR_MA_Trend_Indi_ATR_MA_Trend_Shift);
+    _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
     SetIndicator(new Indi_ATR_MA_Trend(_indi_params));
   }
 
