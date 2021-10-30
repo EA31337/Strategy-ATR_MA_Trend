@@ -84,7 +84,6 @@ class Stg_ATR_MA_Trend : public Strategy {
 
   static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
-    Indi_ATR_MA_Trend_Params _indi_params(indi_atrmat_defaults, _tf);
     StgParams _stg_params(stg_atrmat_defaults);
 #ifdef __config__
     SetParamsByTf<StgParams>(_stg_params, _tf, stg_atr_ma_trend_m1, stg_atr_ma_trend_m5, stg_atr_ma_trend_m15,
@@ -95,8 +94,15 @@ class Stg_ATR_MA_Trend : public Strategy {
     ChartParams _cparams(_tf, _Symbol);
     TradeParams _tparams;
     Strategy *_strat = new Stg_ATR_MA_Trend(_stg_params, _tparams, _cparams, "ATR MA Trend");
-    _strat.SetIndicator(new Indi_ATR_MA_Trend(_indi_params));
     return _strat;
+  }
+
+  /**
+   * Event on strategy's init.
+   */
+  void OnInit() {
+    Indi_ATR_MA_Trend_Params _indi_params(indi_atrmat_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    SetIndicator(new Indi_ATR_MA_Trend(_indi_params));
   }
 
   /**
