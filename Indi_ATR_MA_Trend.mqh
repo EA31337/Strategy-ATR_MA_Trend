@@ -3,9 +3,6 @@
  * Implements indicator class.
  */
 
-// Includes.
-#include <EA31337-classes/Indicator.mqh>
-
 // Enums.
 // Indicator mode identifiers used in ATR MA Trend indicator.
 enum ENUM_INDI_ATR_MA_TREND_MODE {
