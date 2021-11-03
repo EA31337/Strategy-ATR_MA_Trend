@@ -3,6 +3,9 @@
  * Implements indicator class.
  */
 
+// Defines
+#define INDI_TMA_MA_TREND_PATH "indicators-other\\Misc"
+
 // Enums.
 // Indicator mode identifiers used in ATR MA Trend indicator.
 enum ENUM_INDI_ATR_MA_TREND_MODE {
@@ -31,7 +34,7 @@ struct Indi_ATR_MA_Trend_Params : IndicatorParams {
         atr_sensitivity(_atr_sensitivity),
         indi_shift(_indi_shift) {
 #ifdef __resource__
-    custom_indi_name = "::Indicators\\ATR_MA_Trend";
+    custom_indi_name = "::" + INDI_TMA_MA_TREND_PATH + "\\ATR_MA_Trend";
 #else
     custom_indi_name = "ATR_MA_Trend";
 #endif

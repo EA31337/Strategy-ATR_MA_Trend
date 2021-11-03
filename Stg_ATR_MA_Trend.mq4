@@ -14,5 +14,5 @@
 
 // Load external resources.
 #ifdef __resource__
-//#resource "Indicators\\ATR_MA_Trend.ex4"
+//#resource INDI_TMA_MA_TREND_PATH + "ATR_MA_Trend.ex4"
 #endif
