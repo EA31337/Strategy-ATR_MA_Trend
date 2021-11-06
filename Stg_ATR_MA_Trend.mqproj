@@ -590,14 +590,4 @@
       "relative_to_project":"true"
     }
   ],
-
-  "resources":
-  [
-    {
-      "type":"indicator",
-      "path":".\\Indicators\\ATR_MA_Trend.ex5",
-      "name":"Indicators\\ATR_MA_Trend.ex5",
-      "relative_to_project":"true"
-    }
-  ]
 }
