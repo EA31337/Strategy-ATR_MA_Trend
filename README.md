@@ -20,6 +20,7 @@ Strategy based on the Average True Range (ATR) and Moving Average (MA) indicator
 | v1.006   | v2.006    |
 | v1.007   | v2.007    |
 | v1.008   | v2.008    |
+| v1.009   | v2.009    |
 
 <!-- Named links -->
 
