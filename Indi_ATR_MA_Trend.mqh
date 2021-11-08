@@ -64,9 +64,9 @@ class Indi_ATR_MA_Trend : public Indicator<Indi_ATR_MA_Trend_Params> {
   /**
    * Returns the indicator's value.
    */
-  double GetValue(int _mode = 0, int _shift = 0) {
-    ResetLastError();
+  IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
+    int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
     switch (iparams.idstype) {
       case IDATA_BUILTIN:
         break;
@@ -74,14 +74,12 @@ class Indi_ATR_MA_Trend : public Indicator<Indi_ATR_MA_Trend_Params> {
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
         _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
                          iparams.custom_indi_name, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetShiftPercent(),
-                         GetATRPeriod(), GetATRSensitivity(), GetIndiShift(), _mode, _shift);
+                         GetATRPeriod(), GetATRSensitivity(), GetIndiShift(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
         // @todo: Add custom calculation.
         break;
     }
-    istate.is_ready = _value != EMPTY_VALUE && _LastError == ERR_NO_ERROR;
-    istate.is_changed = false;
     return _value;
   }
 
