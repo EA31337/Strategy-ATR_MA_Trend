@@ -39,9 +39,6 @@ struct Indi_ATR_MA_Trend_Params : IndicatorParams {
     custom_indi_name = "ATR_MA_Trend";
 #endif
     itype = INDI_ATR;
-    max_modes = FINAL_INDI_ATR_MA_TREND_ENTRY;
-    SetDataSourceType(IDATA_ICUSTOM);
-    SetDataValueType(TYPE_DOUBLE);
   };
   void Indi_ATR_MA_Trend_Params(Indi_ATR_MA_Trend_Params &_params, ENUM_TIMEFRAMES _tf) {
     this = _params;
@@ -57,8 +54,13 @@ class Indi_ATR_MA_Trend : public Indicator<Indi_ATR_MA_Trend_Params> {
   /**
    * Class constructor.
    */
-  Indi_ATR_MA_Trend(Indi_ATR_MA_Trend_Params &_p, IndicatorBase *_indi_src = NULL)
-      : Indicator<Indi_ATR_MA_Trend_Params>(_p, _indi_src) {}
+  Indi_ATR_MA_Trend(Indi_ATR_MA_Trend_Params &_p, ENUM_IDATA_SOURCE_TYPE _idstype = IDATA_ICUSTOM,
+                    IndicatorBase *_indi_src = NULL, int _indi_src_mode = 0)
+      : Indicator<Indi_ATR_MA_Trend_Params>(
+            _p,
+            IndicatorDataParams::GetInstance(FINAL_INDI_ATR_MA_TREND_ENTRY, TYPE_DOUBLE, _idstype, IDATA_RANGE_MIXED,
+                                             _indi_src_mode),
+            _indi_src) {}
   Indi_ATR_MA_Trend(ENUM_TIMEFRAMES _tf = PERIOD_CURRENT) : Indicator(INDI_ATR, _tf){};
 
   /**
@@ -67,14 +69,13 @@ class Indi_ATR_MA_Trend : public Indicator<Indi_ATR_MA_Trend_Params> {
   IndicatorDataEntryValue GetEntryValue(int _mode = 0, int _shift = -1) {
     double _value = EMPTY_VALUE;
     int _ishift = _shift >= 0 ? _shift : iparams.GetShift();
-    switch (iparams.idstype) {
+    switch (Get<ENUM_IDATA_SOURCE_TYPE>(STRUCT_ENUM(IndicatorDataParams, IDATA_PARAM_IDSTYPE))) {
       case IDATA_BUILTIN:
         break;
       case IDATA_ICUSTOM:
         istate.handle = istate.is_changed ? INVALID_HANDLE : istate.handle;
-        _value = iCustom(istate.handle, Get<string>(CHART_PARAM_SYMBOL), Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF),
-                         iparams.custom_indi_name, Get<ENUM_TIMEFRAMES>(CHART_PARAM_TF), GetPeriod(), GetShiftPercent(),
-                         GetATRPeriod(), GetATRSensitivity(), GetIndiShift(), _mode, _ishift);
+        _value = iCustom(istate.handle, GetSymbol(), GetTf(), iparams.custom_indi_name, GetTf(), GetPeriod(),
+                         GetShiftPercent(), GetATRPeriod(), GetATRSensitivity(), GetIndiShift(), _mode, _ishift);
         break;
       case IDATA_INDICATOR:
         // @todo: Add custom calculation.

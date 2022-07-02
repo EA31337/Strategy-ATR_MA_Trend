@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: Include/EA31337-classes
-          ref: dev
+          ref: b26dfa50dbc3e7b9ae0b44df12c71650c1c47750
           repository: EA31337/EA31337-classes
       - name: Enables input mode
         run: echo '#define __input__' > config/define.h
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: indicators-other/Misc/Include/EA31337-classes
-          ref: dev
+          ref: b26dfa50dbc3e7b9ae0b44df12c71650c1c47750
           repository: EA31337/EA31337-classes
       - name: Compile strategy for MQL5
         uses: fx31337/mql-compile-action@master
@@ -74,7 +74,7 @@ jobs:
     strategy:
       matrix:
         file:
-          - indicators-other/Misc/ATR_MA_Trend
+          - Misc/ATR_MA_Trend
     steps:
       - uses: actions/checkout@v2
         with:
@@ -82,7 +82,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: Include/EA31337-classes
-          ref: dev
+          ref: b26dfa50dbc3e7b9ae0b44df12c71650c1c47750
           repository: EA31337/EA31337-classes
       - name: Compile required indicator for MQL4
         if: false  # MQL4 version not supported.
@@ -91,7 +91,7 @@ jobs:
           include: .
           init-platform: true
           mt-version: 5.0.0.2361
-          path: ${{ matrix.file }}.mq4
+          path: indicators-other/${{ matrix.file }}.mq4
           verbose: true
       - name: Compile required indicator for MQL5
         uses: fx31337/mql-compile-action@master
@@ -99,7 +99,7 @@ jobs:
           include: .
           init-platform: true
           mt-version: 5.0.0.2515
-          path: ${{ matrix.file }}.mq5
+          path: indicators-other/${{ matrix.file }}.mq5
           verbose: true
       - name: List compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
