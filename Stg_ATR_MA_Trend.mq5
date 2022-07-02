@@ -27,7 +27,7 @@ input bool Info_On_Chart = true;          // Display info on chart.
 
 // Defines.
 #define ea_name "Strategy ATR MA Trend"
-#define ea_version "1.010"
+#define ea_version "1.011"
 #define ea_desc "Strategy based on EA31337 framework."
 #define ea_link "https://github.com/EA31337/Strategy-Stg_ATR_MA_Trend"
 
