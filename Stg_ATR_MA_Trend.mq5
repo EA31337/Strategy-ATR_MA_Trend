@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                  EA31337 - multi-strategy advanced trading robot |
-//|                       Copyright 2016-2022, 31337 Investments Ltd |
+//|                       Copyright 2016-2023, 31337 Investments Ltd |
 //|                                       https://github.com/EA31337 |
 //+------------------------------------------------------------------+
 
@@ -27,7 +27,7 @@ input bool Info_On_Chart = true;          // Display info on chart.
 
 // Defines.
 #define ea_name "Strategy ATR MA Trend"
-#define ea_version "1.011"
+#define ea_version "1.012"
 #define ea_desc "Strategy based on EA31337 framework."
 #define ea_link "https://github.com/EA31337/Strategy-Stg_ATR_MA_Trend"
 

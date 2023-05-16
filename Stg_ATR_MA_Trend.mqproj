@@ -1,9 +1,9 @@
 {
   "platform"    :"mt5",
   "program_type":"expert",
-  "copyright"   :"Copyright 2016-2022, kenorb",
+  "copyright"   :"Copyright 2016-2023, kenorb",
   "link"        :"https:\/\/github.com\/EA31337\/Strategy-ATR_MA_Trend",
-  "version"     :"1.011",
+  "version"     :"1.012",
   "description" :"ATR MA Trend strategy based on EA31337 framework",
   "optimize"    :"0",
   "fpzerocheck" :"0",
