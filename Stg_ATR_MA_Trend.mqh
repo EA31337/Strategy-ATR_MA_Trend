@@ -73,7 +73,7 @@ class Stg_ATR_MA_Trend : public Strategy {
   Stg_ATR_MA_Trend(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
 
-  static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL) {
+  static Stg_ATR_MA_Trend *Init(ENUM_TIMEFRAMES _tf = NULL, EA* _ea = NULL) {
     // Initialize strategy initial values.
     StgParams _stg_params(stg_atrmat_defaults);
 #ifdef __config__
