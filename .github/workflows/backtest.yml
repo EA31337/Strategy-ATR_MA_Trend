@@ -74,7 +74,7 @@ jobs:
     strategy:
       matrix:
         file:
-          - indicators-other/Misc/ATR_MA_Trend
+          - Misc/ATR_MA_Trend
     steps:
       - uses: actions/checkout@v2
         with:
@@ -91,7 +91,7 @@ jobs:
           include: .
           init-platform: true
           mt-version: 5.0.0.2361
-          path: ${{ matrix.file }}.mq4
+          path: indicators-other/${{ matrix.file }}.mq4
           verbose: true
       - name: Compile required indicator for MQL5
         uses: fx31337/mql-compile-action@master
@@ -99,7 +99,7 @@ jobs:
           include: .
           init-platform: true
           mt-version: 5.0.0.2515
-          path: ${{ matrix.file }}.mq5
+          path: indicators-other/${{ matrix.file }}.mq5
           verbose: true
       - name: List compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
