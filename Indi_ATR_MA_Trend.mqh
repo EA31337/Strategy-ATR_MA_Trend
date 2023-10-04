@@ -5,7 +5,7 @@
 
 // Defines
 #ifndef INDI_ATR_MA_TREND_PATH
-#define INDI_ATR_MA_TREND_PATH "indicators-other\\Misc\\ATR_MA_Trend"
+#define INDI_ATR_MA_TREND_PATH "indicators-other\\Misc"
 #endif
 
 // Enums.

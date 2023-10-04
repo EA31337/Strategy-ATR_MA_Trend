@@ -40,15 +40,15 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #property link ea_link
 #ifdef __resource__
 #ifdef __MQL5__
-#property tester_indicator "::" + INDI_ATR_MA_TREND_PATH + "\\ATR_MA_Trend.ex5"
-#property tester_library "::" + INDI_ATR_MA_TREND_PATH + "\\ATR_MA_Trend.ex5"
+#property tester_indicator "::" + INDI_ATR_MA_TREND_PATH + "\\ATR_MA_Trend" + MQL_EXT
+#property tester_library "::" + INDI_ATR_MA_TREND_PATH + "\\ATR_MA_Trend" + MQL_EXT
 #endif
 #endif
 
 // Load external resources.
 #ifdef __resource__
 #ifdef __MQL5__
-#resource INDI_ATR_MA_TREND_PATH + "\\ATR_MA_Trend.ex5"
+#resource INDI_ATR_MA_TREND_PATH + "\\ATR_MA_Trend" + MQL_EXT
 #endif
 #endif
 
